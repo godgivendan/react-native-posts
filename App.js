@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React, {useState} from "react";
 import AppLoading from "expo-app-loading";
 import {bootstrap} from "./src/plugins/bootstrap";
