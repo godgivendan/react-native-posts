@@ -1,30 +1,36 @@
-import React, {useLayoutEffect} from "react";
+import React, {useCallback, useLayoutEffect} from "react";
 import {View, ScrollView, Text, StyleSheet, Image, Button, Alert} from "react-native";
-import {DATA} from "../data";
 import {THEME} from "../theme";
 import {HeaderButtons, Item} from "react-navigation-header-buttons";
 import {AppHeaderIcon} from "../components/AppHeaderIcon";
+import {useDispatch, useSelector} from "react-redux";
+import {removePost, toggleBooked} from "../store/actions/post";
 
 
 export const PostScreen = ({route, navigation}) => {
+    const dispatch = useDispatch()
     const {postId, postDate, postBooked} = route.params
-    const post = DATA.find(p => p.id === postId)
+    const post = useSelector(state => state.post.allPosts.find(p => p.id === postId))
+    const booked = useSelector(state => state.post.bookedPosts.some(post => post.id === postId))
+
+    const toggleHandler = useCallback(() => {
+        // console.log(postId)
+        dispatch(toggleBooked(post))
+    }, [dispatch, post])
 
     useLayoutEffect(() => {
         navigation.setOptions({
             title: 'Пост от ' + new Date(postDate).toLocaleDateString(),
             headerRight: () => {
-                const iconName = postBooked ? 'ios-star' : 'ios-star-outline'
+                const iconName = booked ? 'ios-star' : 'ios-star-outline'
                 return <HeaderButtons HeaderButtonComponent={AppHeaderIcon}>
                     <Item title={'Favorite post'}
                           iconName={iconName}
-                          onPress={() => {
-                              console.log('Star pressed...')
-                          }}/>
+                          onPress={toggleHandler}/>
                 </HeaderButtons>
             },
         })
-    }, [navigation])
+    }, [navigation, toggleHandler, booked])
 
     const removeHandler = () => {
         Alert.alert(
@@ -34,11 +40,17 @@ export const PostScreen = ({route, navigation}) => {
                 {text: 'Отменить', style: 'cancel'},
                 {
                     text: 'Удалить', style: 'destructive', onPress: () => {
+                        navigation.navigate('Home')
+                        dispatch(removePost(postId))
                     }
                 }
             ],
             {cancelable: false}
         )
+    }
+
+    if (!post) {
+        return null
     }
 
     return (

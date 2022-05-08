@@ -1,12 +1,13 @@
 import React, {useLayoutEffect} from "react";
-import {DATA} from "../data";
 import {Post} from "../components/Post";
 import {HeaderButtons, Item} from "react-navigation-header-buttons";
 import {AppHeaderIcon} from "../components/AppHeaderIcon";
-import {Ionicons} from "@expo/vector-icons";
 import {PostList} from "../components/PostList";
+import {useDispatch, useSelector} from "react-redux";
 
 export const BookedScreen = ({navigation}) => {
+    const bookedPosts = useSelector(state => state.post.bookedPosts)
+
     useLayoutEffect(() => {
         navigation.setOptions({
             title: "Избранное",
@@ -28,6 +29,6 @@ export const BookedScreen = ({navigation}) => {
         navigation.navigate('Post', {postId: post.id, postDate: post.date, postBooked: post.booked})
     }
 
-    return <PostList data={DATA.filter(post => post.booked)} onOpen={openPostHandler} />
+    return <PostList data={bookedPosts} onOpen={openPostHandler} />
 }
 
